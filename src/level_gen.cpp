@@ -1057,7 +1057,7 @@ static CountT makeSingleButtonRoom(Engine &ctx,
     setupDoor(ctx, room.door, { button }, true);
 
     room.entities[0] = button;
-    
+    /*
     // Create Lava Entity
     float lava_x = randInRangeCentered(ctx,
     consts::worldWidth / 2.f - consts::lavaWidth);
@@ -1067,11 +1067,12 @@ static CountT makeSingleButtonRoom(Engine &ctx,
      //   lava_y = randBetween(ctx, y_min + consts::roomLength / 4.f,
     //        y_max - consts::wallWidth - consts::lavaHeight);
    // }
+    
 
     Entity lava = makeLavaEntity(ctx, Vector3{lava_x, lava_y, 0.f});
-    room.entities[1] = lava;
+    room.entities[1] = lava;*/
     
-    return 2;
+    return 1;
 }
 
 // A room with two buttons that need to be pressed simultaneously,
@@ -1102,16 +1103,21 @@ static CountT makeDoubleButtonRoom(Engine &ctx,
     Entity b = makeButton(ctx, b_x, b_y);
 
     setupDoor(ctx, room.door, { a, b }, true);
+    
     float lava_x, lava_y;
     bool isPositionValid= false;
 
     // Generate lava position
     do {
         isPositionValid = true;
-        lava_x = randBetween(ctx, consts::lavaWidth,
-                             consts::worldWidth / 1.0f - consts::lavaWidth);
-        lava_y = randBetween(ctx, y_min + consts::roomLength / 2.f, y_max - consts::wallWidth - consts::lavaHeight);
+	lava_x = randBetween(ctx,
+        consts::lavaWidth,
+        consts::worldWidth / 2.f - consts::lavaWidth);
 
+	lava_y = randBetween(ctx,
+        y_min + consts::roomLength / 4.f,
+        y_max - consts::wallWidth - consts::lavaHeight / 2.f);
+	
         // Check if the lava overlaps with either button
         if ((std::abs(lava_x - a_x) < consts::lavaWidth + consts::buttonWidth && std::abs(lava_y - a_y) < consts::lavaHeight + consts::buttonWidth) ||
             (std::abs(lava_x - b_x) < consts::lavaWidth + consts::buttonWidth && std::abs(lava_y - b_y) < consts::lavaHeight + consts::buttonWidth)) {
@@ -1119,12 +1125,13 @@ static CountT makeDoubleButtonRoom(Engine &ctx,
         }
     } while (!isPositionValid);
     
-    Entity lava = makeLavaEntity(ctx, Vector3{lava_x, lava_y, 0.f});
+        
+    Entity lava2 = makeLavaEntity(ctx, Vector3{lava_x, lava_y, 0.f});
     
 
     room.entities[0] = a;
     room.entities[1] = b;
-    room.entities[2] = lava;
+    room.entities[2] = lava2;
 
     return 3;
 }
@@ -1168,8 +1175,8 @@ static CountT makeCubeBlockingRoom(Engine &ctx,
     
 
 
-    float cube_c_x = door_pos.x - 7.f;
-    float cube_c_y = door_pos.y - 8.f;
+    float cube_c_x = door_pos.x - 5.f;
+    float cube_c_y = door_pos.y - 6.f;
 
     Entity lava1 = makeLavaEntity(ctx, Vector3{cube_c_x, cube_c_y, 0.f});
 

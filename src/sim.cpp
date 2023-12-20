@@ -1221,18 +1221,30 @@ inline void collectObservationsSystem(Engine &ctx,
             ob.polar = { 0.f, 1.f };
             ob.encodedType = encodeType(EntityType::None);
         } else {
-            Vector3 entity_pos = ctx.get<Position>(entity);
             EntityType entity_type = ctx.get<EntityType>(entity);
-
+            Vector3 entity_pos = ctx.get<Position>(entity);
             Vector3 to_entity = entity_pos - pos;
-            ob.polar = xyToPolar(to_view.rotateVec(to_entity));
-            ob.encodedType = encodeType(entity_type);
-            
+
             if (entity_type == EntityType::Lava) {
+                
+                ob.polar = xyToPolar(to_view.rotateVec(to_entity));
+                ob.encodedType = encodeType(entity_type);
+                
+                LavaState lava_state = ctx.get<LavaState>(entity);
+                lava_obs.polar = ob.polar;
+                lava_obs.isDead = lava_state.isDead ? 1.f : 0.f;
+            }else{
+                
+                ob.polar = xyToPolar(to_view.rotateVec(to_entity));
+                ob.encodedType = encodeType(entity_type);
+            }
+            
+            
+            /*if (entity_type == EntityType::Lava) {
                 LavaState lava_state = ctx.get<LavaState>(entity);
                 lava_obs.polar = xyToPolar(to_view.rotateVec(entity_pos - pos));
                 lava_obs.isDead = lava_state.isDead ? 1.f : 0.f;
-            }
+            }*/
         }
 
         room_ent_obs.obs[i] = ob;
@@ -1341,7 +1353,8 @@ inline void rewardSystem(Engine &ctx,
                 LavaState lava_state = ctx.get<LavaState>(entity);
                 bool hitLava =lava_state.isDead;
                 if(hitLava == true){
-                    reward = reward - .0001;
+                    reward = reward - .03;
+                   // lava_state.isDead = false;
                 }
             }
         }
