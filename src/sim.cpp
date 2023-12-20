@@ -1405,9 +1405,9 @@ inline void rewardSystem(Engine &ctx,
                 }//else{
 		// std::cout << "alive" << std::endl;
 		//}
-		if (new_progress < 0) {
-        		reward =  reward - .001;
-            	}
+		//if (new_progress < 0) {
+        	//	reward =  reward - .001;
+            	//}
 	    }
 
     	}
