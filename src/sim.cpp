@@ -1048,7 +1048,7 @@ inline void lavaSystem(Engine &ctx,
         .pMax = pos + Vector3 {
             consts::lavaWidth / 2.f,
             consts::lavaHeight / 2.f,
-            0.5f
+            0.3f
         },
     };
 
@@ -1232,6 +1232,7 @@ inline void collectObservationsSystem(Engine &ctx,
                 ob.encodedType = encodeType(entity_type);
                 
 		LavaState lava_state = ctx.get<LavaState>(entity);
+		
                 lava_obs.polar = ob.polar;
                 lava_obs.isDead = lava_state.isDead ? 1.f : 0.f;
             }else{
@@ -1347,6 +1348,7 @@ inline void rewardSystem(Engine &ctx,
     const LevelState &level = ctx.singleton<LevelState>();
     const Room &room = level.rooms[cur_room_idx];
     // Before the existing lava penalty logic
+    /*
     for (CountT i = 0; i < consts::maxEntitiesPerRoom; i++) {
         Entity entity = room.entities[i];
         if (entity != Entity::none()) {
@@ -1376,7 +1378,7 @@ inline void rewardSystem(Engine &ctx,
 	   }
 	}
     }
-
+    */
 // Apply a gradual penalty based on distance to lava
     /*
     if (minLavaDistance < 1.8) {  // Define a suitable threshold
@@ -1387,7 +1389,7 @@ inline void rewardSystem(Engine &ctx,
       
       reward = reward - 1.0;
       }*/
-    /*
+    
     for (CountT i = 0; i < consts::maxEntitiesPerRoom; i++) {
         Entity entity = room.entities[i];
         if (room.entities[i] != Entity::none()) {
@@ -1396,14 +1398,15 @@ inline void rewardSystem(Engine &ctx,
                 LavaState lava_state = ctx.get<LavaState>(entity);
                 bool hitLava =lava_state.isDead;
                 if(hitLava == true){
-                    reward = reward - 1.0;
-		    std::cout << "dead" << std::endl;
-
-		    // lava_state.isDead = false;
-                }
+                    reward = reward - .03;
+		    //std::cout << "dead" << std::endl;
+		    lava_state.isDead = false;
+                }//else{
+		// std::cout << "alive" << std::endl;
+		//}
             }
-	    }*/
-    //}
+	    }
+    }
     out_reward.v = reward;
 }
 
@@ -1543,7 +1546,7 @@ void Sim::setupTasks(TaskGraphBuilder &builder, const Config &cfg)
             Position,
             Progress,
             Reward
-        >>({door_open_sys});
+	 >>({lava_sys, door_open_sys});
 
     // Assign partner's reward
     auto bonus_reward_sys = builder.addToGraph<ParallelForNode<Engine,
@@ -1551,7 +1554,7 @@ void Sim::setupTasks(TaskGraphBuilder &builder, const Config &cfg)
             OtherAgents,
             Progress,
             Reward
-        >>({reward_sys});
+	 >>({reward_sys});
 
     // Check if the episode is over
     auto done_sys = builder.addToGraph<ParallelForNode<Engine,
