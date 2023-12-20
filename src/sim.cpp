@@ -777,6 +777,7 @@ MADRONA_BUILD_MWGPU_ENTRY(Engine, Sim, Sim::Config, WorldInit);
 */
 
 #include <madrona/mw_gpu_entry.hpp>
+#include <iostream>
 
 #include "sim.hpp"
 #include "level_gen.hpp"
@@ -1042,12 +1043,12 @@ inline void lavaSystem(Engine &ctx,
         .pMin = pos + Vector3 {
             -consts::lavaWidth / 2.f,
             -consts::lavaHeight / 2.f,
-            0.f,
+            0.0f,
         },
         .pMax = pos + Vector3 {
             consts::lavaWidth / 2.f,
             consts::lavaHeight / 2.f,
-            0.25f
+            0.5f
         },
     };
 
@@ -1230,7 +1231,7 @@ inline void collectObservationsSystem(Engine &ctx,
                 ob.polar = xyToPolar(to_view.rotateVec(to_entity));
                 ob.encodedType = encodeType(entity_type);
                 
-                LavaState lava_state = ctx.get<LavaState>(entity);
+		LavaState lava_state = ctx.get<LavaState>(entity);
                 lava_obs.polar = ob.polar;
                 lava_obs.isDead = lava_state.isDead ? 1.f : 0.f;
             }else{
@@ -1345,6 +1346,48 @@ inline void rewardSystem(Engine &ctx,
     
     const LevelState &level = ctx.singleton<LevelState>();
     const Room &room = level.rooms[cur_room_idx];
+    // Before the existing lava penalty logic
+    for (CountT i = 0; i < consts::maxEntitiesPerRoom; i++) {
+        Entity entity = room.entities[i];
+        if (entity != Entity::none()) {
+	   EntityType entityType = ctx.get<EntityType>(entity);
+           if (entityType == EntityType::Lava) {
+              Position lavaPos = ctx.get<Position>(entity);
+              float distance = (lavaPos - pos).length();
+	      
+              float minLavaDistance = distance;
+	      LavaState lava_state = ctx.get<LavaState>(entity);
+        
+	      if (minLavaDistance < 2.0) {
+		
+		//std::cout<< lava_state.isDead << "dead" << std::endl;
+                reward = reward - 1.0;
+                lava_state.isDead = true;
+	      }else if(minLavaDistance < 3.0){
+		//std::cout<< lava_state.isDead<< std::endl;
+		reward -= .003;
+                lava_state.isDead = false;
+	        //std::cout << minLavaDistance << "close" << std::endl;
+	      }else{
+		//std::cout << "ji" << std::endl; 
+		lava_state.isDead = false;
+
+	      }
+	   }
+	}
+    }
+
+// Apply a gradual penalty based on distance to lava
+    /*
+    if (minLavaDistance < 1.8) {  // Define a suitable threshold
+       reward -= .003; // Define LavaProximityPenalty
+       std::cout << "close" << std::endl;
+
+    }else if(minLavaDistace < 1.2){
+      
+      reward = reward - 1.0;
+      }*/
+    /*
     for (CountT i = 0; i < consts::maxEntitiesPerRoom; i++) {
         Entity entity = room.entities[i];
         if (room.entities[i] != Entity::none()) {
@@ -1353,12 +1396,14 @@ inline void rewardSystem(Engine &ctx,
                 LavaState lava_state = ctx.get<LavaState>(entity);
                 bool hitLava =lava_state.isDead;
                 if(hitLava == true){
-                    reward = reward - .03;
-                   // lava_state.isDead = false;
+                    reward = reward - 1.0;
+		    std::cout << "dead" << std::endl;
+
+		    // lava_state.isDead = false;
                 }
             }
-        }
-    }
+	    }*/
+    //}
     out_reward.v = reward;
 }
 
@@ -1483,7 +1528,7 @@ void Sim::setupTasks(TaskGraphBuilder &builder, const Config &cfg)
         lavaSystem,
             Position,
             LavaState
-        >>({phys_done});
+	>>({phys_done});
 
     // Set door to start opening if button conditions are met
     auto door_open_sys = builder.addToGraph<ParallelForNode<Engine,
@@ -1498,7 +1543,7 @@ void Sim::setupTasks(TaskGraphBuilder &builder, const Config &cfg)
             Position,
             Progress,
             Reward
-        >>({door_open_sys, lava_sys});
+        >>({door_open_sys});
 
     // Assign partner's reward
     auto bonus_reward_sys = builder.addToGraph<ParallelForNode<Engine,

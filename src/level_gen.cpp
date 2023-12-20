@@ -1119,8 +1119,8 @@ static CountT makeDoubleButtonRoom(Engine &ctx,
         y_max - consts::wallWidth - consts::lavaHeight / 2.f);
 	
         // Check if the lava overlaps with either button
-        if ((std::abs(lava_x - a_x) < consts::lavaWidth + consts::buttonWidth && std::abs(lava_y - a_y) < consts::lavaHeight + consts::buttonWidth) ||
-            (std::abs(lava_x - b_x) < consts::lavaWidth + consts::buttonWidth && std::abs(lava_y - b_y) < consts::lavaHeight + consts::buttonWidth)) {
+        if ((std::abs(lava_x - a_x) < consts::lavaWidth + .7 + consts::buttonWidth && std::abs(lava_y - a_y) < consts::lavaHeight + .7 + consts::buttonWidth) ||
+            (std::abs(lava_x - b_x) < consts::lavaWidth + .7 + consts::buttonWidth && std::abs(lava_y - b_y) < consts::lavaHeight + .7 + consts::buttonWidth)) {
             isPositionValid = false;
         }
     } while (!isPositionValid);
@@ -1167,18 +1167,61 @@ static CountT makeCubeBlockingRoom(Engine &ctx,
 
     setupDoor(ctx, room.door, { button_a, button_b }, true);
 
-    Vector3 door_pos = ctx.get<Position>(room.door);
+    //Vector3 door_pos = ctx.get<Position>(room.door);
+    float lava_a_x, lava_a_y;
+    bool isPositionValid= false;
+    do {
+        isPositionValid = true;
+        lava_a_x = randBetween(ctx,
+        -consts::worldWidth / 2.f + consts::lavaWidth + .2,
+        -consts::lavaWidth - consts::worldWidth / 4.f + .2);
 
-    float cube_a_x = door_pos.x + 7.f;
-    float cube_a_y = door_pos.y - 2.f;
-    Entity lava = makeLavaEntity(ctx, Vector3{cube_a_x, cube_a_y, 0.f});
+        lava_a_y = randBetween(ctx,
+        y_min + consts::lavaHeight + .2,
+        y_max - consts::roomLength / 4.f + .2);
+
+        
+        if ((std::abs(lava_a_x -  button_a_x) < consts::lavaWidth + .7 + consts::buttonWidth && std::abs(lava_a_y - button_a_y) < co\
+nsts::lavaHeight + .7 + consts::buttonWidth) ||
+            (std::abs(lava_a_x -  button_b_x) < consts::lavaWidth + .7 + consts::buttonWidth && std::abs(lava_a_y -  button_b_y) < co\
+nsts::lavaHeight + .7 + consts::buttonWidth)) {
+            isPositionValid = false;
+        }
+    } while (!isPositionValid);
+
+    //    Vector3 door_pos = ctx.get<Position>(room.door);
+    float lava_b_x, lava_b_y;
+    bool isPositionValidb= false;
+    do {
+        isPositionValidb = true;
+        lava_b_x = randBetween(ctx,
+        consts::worldWidth / 2.f + consts::lavaWidth + .2,
+        consts::lavaWidth - consts::worldWidth / 4.f + .2);
+
+        lava_b_y = randBetween(ctx,
+        y_min + consts::lavaHeight + .2,
+        y_max - consts::roomLength / 4.f + .2);
+
+
+        if ((std::abs(lava_b_x -  button_a_x) < consts::lavaWidth + .7 + consts::buttonWidth && std::abs(lava_b_y\
+ - button_a_y) < co\
+nsts::lavaHeight + .7 + consts::buttonWidth) ||
+            (std::abs(lava_b_x -  button_b_x) < consts::lavaWidth + .7 + consts::buttonWidth && std::abs(lava_b_y\
+ -  button_b_y) < co\
+nsts::lavaHeight + .7 + consts::buttonWidth)) {
+            isPositionValidb = false;
+        }
+    } while (!isPositionValidb);
+
+    //float cube_a_x = door_pos.x + 7.f;
+    //float cube_a_y = door_pos.y - 2.f;
+    Entity lava = makeLavaEntity(ctx, Vector3{lava_a_x, lava_a_y, 0.f});
+    
+    //float cube_c_x = door_pos.x - 5.f;
+    //float cube_c_y = door_pos.y - 6.f;
     
 
-
-    float cube_c_x = door_pos.x - 5.f;
-    float cube_c_y = door_pos.y - 6.f;
-
-    Entity lava1 = makeLavaEntity(ctx, Vector3{cube_c_x, cube_c_y, 0.f});
+    Entity lava1 = makeLavaEntity(ctx, Vector3{lava_b_x, lava_b_y, 0.f});
 
     room.entities[0] = button_a;
     room.entities[1] = button_b;
