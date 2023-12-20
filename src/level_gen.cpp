@@ -1126,14 +1126,14 @@ static CountT makeDoubleButtonRoom(Engine &ctx,
     } while (!isPositionValid);
     
         
-    Entity lava2 = makeLavaEntity(ctx, Vector3{lava_x, lava_y, 0.f});
+    //Entity lava2 = makeLavaEntity(ctx, Vector3{lava_x, lava_y, 0.f});
     
 
     room.entities[0] = a;
     room.entities[1] = b;
-    room.entities[2] = lava2;
+    //room.entities[2] = lava2;
 
-    return 3;
+    return 2;
 }
 
 // This room has 3 cubes blocking the exit door as well as two buttons.
