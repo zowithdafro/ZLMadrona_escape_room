@@ -1398,7 +1398,7 @@ inline void rewardSystem(Engine &ctx,
                 LavaState lava_state = ctx.get<LavaState>(entity);
                 bool hitLava =lava_state.isDead;
                 if(hitLava == true){
-                    reward = reward - .03;
+                    reward = reward - .003;
 		    //std::cout << "dead" << std::endl;
 		    lava_state.isDead = false;
                 }//else{
