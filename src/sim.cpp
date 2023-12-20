@@ -1395,7 +1395,8 @@ inline void rewardSystem(Engine &ctx,
         if (room.entities[i] != Entity::none()) {
             EntityType entity_type = ctx.get<EntityType>(entity);
             if (entity_type == EntityType::Lava) {
-                LavaState lava_state = ctx.get<LavaState>(entity);
+                
+		LavaState lava_state = ctx.get<LavaState>(entity);
                 bool hitLava =lava_state.isDead;
                 if(hitLava == true){
                     reward = reward - 0.003;
@@ -1404,8 +1405,12 @@ inline void rewardSystem(Engine &ctx,
                 }//else{
 		// std::cout << "alive" << std::endl;
 		//}
-            }
+		if (new_progress < 0) {
+        		reward =  reward - .001;
+            	}
 	    }
+
+    	}
     }
     out_reward.v = reward;
 }
