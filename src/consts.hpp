@@ -16,7 +16,7 @@ inline constexpr madrona::CountT numAgents = 2;
 // in order to setup the fixed-size learning tensors appropriately.
 inline constexpr madrona::CountT maxEntitiesPerRoom = 6;
 
-inline constexpr float lavaWidth = 2.0f;  // Width of the lava entity
+inline constexpr float lavaWidth = 1.7f;  // Width of the lava entity
 inline constexpr float lavaHeight = 0.1f; // Height of the lava entity
 inline constexpr float lavaDamage = 10.0f; // Damage level for lava
 

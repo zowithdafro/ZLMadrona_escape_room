@@ -31,13 +31,13 @@ void Sim::registerTypes(ECSRegistry &registry, const Config &cfg)
     registry.registerComponent<RoomEntityObservations>();
     registry.registerComponent<DoorObservation>();
     registry.registerComponent<ButtonState>();
-    registry.registerComponent<LavaState>();
     registry.registerComponent<OpenState>();
     registry.registerComponent<DoorProperties>();
     registry.registerComponent<Lidar>();
     registry.registerComponent<StepsRemaining>();
     registry.registerComponent<EntityType>();
 
+    registry.registerComponent<LavaState>();
     registry.registerSingleton<WorldReset>();
     registry.registerSingleton<LevelState>();
 
@@ -760,7 +760,7 @@ void Sim::setupTasks(TaskGraphBuilder &builder, const Config &cfg)
             Position,
             Progress,
             Reward
-        >>({door_open_sys});
+        >>({door_open_sys, lava_interaction_sys});
 
     // Assign partner's reward
     auto bonus_reward_sys = builder.addToGraph<ParallelForNode<Engine,

@@ -353,7 +353,7 @@ static Entity makeButton(Engine &ctx,
 }
 
 static Entity makeLava(Engine &ctx, float x, float y) {
-    Entity lava = ctx.makeRenderableEntity<PhysicsEntity>();
+    Entity lava = ctx.makeRenderableEntity<LavaEntity>();
     ctx.get<Position>(lava) = Vector3 {
         x,
         y,
@@ -527,7 +527,7 @@ static CountT makeCubeBlockingRoom(Engine &ctx,
     Entity button_b = makeButton(ctx, button_b_x, button_b_y);
     float lava1_x = randBetween(ctx, -consts::worldWidth / 2.f + consts::lavaWidth, 0.f);
     float lava1_y = randBetween(ctx, y_min + consts::roomLength / 4.f, y_max - consts::roomLength / 4.f);
-    Entity lava1 = makeLava(ctx, lava1_x, lava1_y);
+    //Entity lava1 = makeLava(ctx, lava1_x, lava1_y);
     float lava2_x = randBetween(ctx, 0.f, consts::worldWidth / 2.f - consts::lavaWidth);
     float lava2_y = randBetween(ctx, y_min + consts::roomLength / 4.f, y_max - consts::roomLength / 4.f);
     Entity lava2 = makeLava(ctx, lava2_x, lava2_y);
@@ -554,13 +554,13 @@ static CountT makeCubeBlockingRoom(Engine &ctx,
 
     room.entities[0] = button_a;
     room.entities[1] = button_b;
-    room.entities[2] = lava1;
-    room.entities[3] = lava2;
+    //room.entities[2] = lava1;
+    room.entities[2] = lava2;
     //room.entities[2] = cube_a;
     //room.entities[3] = cube_b;
     //room.entities[4] = cube_c;
 
-    return 4;
+    return 3;
 }
 
 // This room has 2 buttons and 2 cubes. The buttons need to remain pressed
