@@ -300,90 +300,15 @@ inline void lavaSystem(Engine &ctx,
             ctx, lava_aabb, [&](Entity entity) {
             if (ctx.get<EntityType>(entity) == EntityType::Agent) {
                 auto& agent_reward = ctx.get<Reward>(entity);
-                agent_reward.v -= 10.0f; //Reduce reward or health
+                agent_reward.v -= 1000.0f; //Reduce reward or health
             }
             lava_pressed = true;
-    });/*
-    RigidBodyPhysicsSystem::findEntitiesWithinAABB(
-        ctx, lava_aabb, [&](Entity entity) {
-            if (ctx.get<EntityType>(entity) == EntityType::Agent) {
-                // Apply lava effects to agent
-                auto& agent_reward = ctx.get<Reward>(entity);
-                agent_reward.v -= lava_state.damageLevel; // Reduce reward or health
-            }
-        }
-    );*/
+    });
+    
     state.isActive = lava_pressed;
     
 }
 
-
-
-
-/*
-void Sim::handleLavaInteraction(Engine &ctx, Entity agent, Entity lava) {
-    auto& agentPos = ctx.get<Position>(agent);
-    auto& lavaState = ctx.get<LavaState>(lava);
-
-    // Define the AABB for the agent
-    AABB agent_aabb {
-        .pMin = agentPos + Vector3 {
-            -consts::agentRadius,
-            -consts::agentRadius,
-            0.f,
-        },
-        .pMax = agentPos + Vector3 {
-            consts::agentRadius,
-            consts::agentRadius,
-            consts::agentRadius * 2  // Assuming a spherical agent
-        },
-    };
-
-    // Check for collision between agent and lava
-    bool isColliding = false;
-    RigidBodyPhysicsSystem::findEntitiesWithinAABB(
-        ctx, agent_aabb, [&](Entity entity) {
-            if (entity == lava) {
-                isColliding = true;
-            }
-        }
-    );
-
-    if (isColliding && lavaState.isActive) {
-        // Apply damage or penalty to the agent
-        auto& agentReward = ctx.get<Reward>(agent);
-        agentReward.v -= lavaState.damageLevel; // Apply damage as negative reward
-    }
-}
-
-inline void lavaInteractionSystem(Engine &ctx,
-                                  Position &pos,
-                                  LavaState &lava_state)
-{
-    AABB lava_aabb {
-        .pMin = pos + Vector3 {
-            -consts::lavaWidth / 2.f,
-            -consts::lavaWidth / 2.f,
-            0.f,
-        },
-        .pMax = pos + Vector3 {
-            consts::lavaWidth / 2.f,
-            consts::lavaWidth / 2.f,
-            consts::lavaHeight,
-        },
-    };
-
-    RigidBodyPhysicsSystem::findEntitiesWithinAABB(
-        ctx, lava_aabb, [&](Entity entity) {
-            if (ctx.get<EntityType>(entity) == EntityType::Agent) {
-                // Apply lava effects to agent
-                auto& agent_reward = ctx.get<Reward>(entity);
-                agent_reward.v -= lava_state.damageLevel; // Reduce reward or health
-            }
-        }
-    );
-}
- */
  
 // Check if all the buttons linked to the door are pressed and open if so.
 // Optionally, close the door if the buttons aren't pressed.

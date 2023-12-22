@@ -530,12 +530,16 @@ static CountT makeCubeBlockingRoom(Engine &ctx,
     //Entity lava1 = makeLava(ctx, lava1_x, lava1_y);
     float lava2_x = randBetween(ctx, 0.f, consts::worldWidth / 2.f - consts::lavaWidth);
     float lava2_y = randBetween(ctx, y_min + consts::roomLength / 4.f, y_max - consts::roomLength / 4.f);
-    Entity lava2 = makeLava(ctx, lava2_x, lava2_y);
+    
+    
     
 
     setupDoor(ctx, room.door, { button_a, button_b }, true);
 
     Vector3 door_pos = ctx.get<Position>(room.door);
+    float loc_a_x = door_pos.x - 1.f;
+    float loc_a_y = door_pos.y - 6.f;
+    Entity lava2 = makeLava(ctx, loc_a_x, loc_a_y);
 
     float cube_a_x = door_pos.x - 3.f;
     float cube_a_y = door_pos.y - 2.f;
@@ -543,7 +547,7 @@ static CountT makeCubeBlockingRoom(Engine &ctx,
     //Entity cube_a = makeCube(ctx, cube_a_x, cube_a_y, 1.5f);
 
     float cube_b_x = door_pos.x;
-    float cube_b_y = door_pos.y - 2.f;
+    float cube_b_y = door_pos.y - 5.f;
 
     //Entity cube_b = makeCube(ctx, cube_b_x, cube_b_y, 1.5f);
 
