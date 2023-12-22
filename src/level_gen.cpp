@@ -71,6 +71,7 @@ static void registerRigidBodyEntity(
         RigidBodyPhysicsSystem::registerEntity(ctx, e, obj_id);
 }
 
+
 // Creates floor, outer walls, and agent entities.
 // All these entities persist across all episodes.
 void createPersistentEntities(Engine &ctx)
@@ -351,6 +352,53 @@ static Entity makeButton(Engine &ctx,
     return button;
 }
 
+static Entity makeLava(Engine &ctx, float x, float y) {
+    Entity lava = ctx.makeRenderableEntity<PhysicsEntity>();
+    ctx.get<Position>(lava) = Vector3 {
+        x,
+        y,
+        0.f,
+    };
+    ctx.get<Rotation>(lava) = Quat { 1, 0, 0, 0 };
+    ctx.get<Scale>(lava) = Diag3x3 {
+        consts::lavaWidth,
+        consts::lavaWidth,
+        0.2f,
+    };
+    ctx.get<ObjectID>(lava) = ObjectID { (int32_t)SimObject::Lava };
+    ctx.get<LavaState>(lava).isActive = false;
+    ctx.get<EntityType>(lava) = EntityType::Lava;
+
+    return lava;
+}
+
+/*
+static Entity makeLava(Engine &ctx, float x, float y) {
+    Entity lava = ctx.makeRenderableEntity<PhysicsEntity>();
+    setupRigidBodyEntity(
+        ctx,
+        lava,
+        Vector3 { x, y, consts::lavaHeight / 2.f },
+        Quat { 1, 0, 0, 0 },
+        SimObject::Lava, // You may need to add Lava to SimObject enum
+        EntityType::Lava,
+        ResponseType::Static,
+        Diag3x3 {
+            consts::lavaWidth,
+            consts::lavaWidth,
+            consts::lavaHeight
+        });
+    registerRigidBodyEntity(ctx, lava, SimObject::Lava);
+    
+    // Set LavaState component with initial values
+    LavaState &lavaState = ctx.get<LavaState>(lava);
+    lavaState.isActive = true;
+    lavaState.damageLevel = consts::lavaDamage;
+
+    return lava;
+}
+*/
+
 static Entity makeCube(Engine &ctx,
                        float cube_x,
                        float cube_y,
@@ -441,6 +489,7 @@ static CountT makeDoubleButtonRoom(Engine &ctx,
     Entity b = makeButton(ctx, b_x, b_y);
 
     setupDoor(ctx, room.door, { a, b }, true);
+    
 
     room.entities[0] = a;
     room.entities[1] = b;
@@ -476,6 +525,13 @@ static CountT makeCubeBlockingRoom(Engine &ctx,
         y_max - consts::roomLength / 4.f);
 
     Entity button_b = makeButton(ctx, button_b_x, button_b_y);
+    float lava1_x = randBetween(ctx, -consts::worldWidth / 2.f + consts::lavaWidth, 0.f);
+    float lava1_y = randBetween(ctx, y_min + consts::roomLength / 4.f, y_max - consts::roomLength / 4.f);
+    Entity lava1 = makeLava(ctx, lava1_x, lava1_y);
+    float lava2_x = randBetween(ctx, 0.f, consts::worldWidth / 2.f - consts::lavaWidth);
+    float lava2_y = randBetween(ctx, y_min + consts::roomLength / 4.f, y_max - consts::roomLength / 4.f);
+    Entity lava2 = makeLava(ctx, lava2_x, lava2_y);
+    
 
     setupDoor(ctx, room.door, { button_a, button_b }, true);
 
@@ -484,25 +540,27 @@ static CountT makeCubeBlockingRoom(Engine &ctx,
     float cube_a_x = door_pos.x - 3.f;
     float cube_a_y = door_pos.y - 2.f;
 
-    Entity cube_a = makeCube(ctx, cube_a_x, cube_a_y, 1.5f);
+    //Entity cube_a = makeCube(ctx, cube_a_x, cube_a_y, 1.5f);
 
     float cube_b_x = door_pos.x;
     float cube_b_y = door_pos.y - 2.f;
 
-    Entity cube_b = makeCube(ctx, cube_b_x, cube_b_y, 1.5f);
+    //Entity cube_b = makeCube(ctx, cube_b_x, cube_b_y, 1.5f);
 
     float cube_c_x = door_pos.x + 3.f;
     float cube_c_y = door_pos.y - 2.f;
 
-    Entity cube_c = makeCube(ctx, cube_c_x, cube_c_y, 1.5f);
+    //Entity cube_c = makeCube(ctx, cube_c_x, cube_c_y, 1.5f);
 
     room.entities[0] = button_a;
     room.entities[1] = button_b;
-    room.entities[2] = cube_a;
-    room.entities[3] = cube_b;
-    room.entities[4] = cube_c;
+    room.entities[2] = lava1;
+    room.entities[3] = lava2;
+    //room.entities[2] = cube_a;
+    //room.entities[3] = cube_b;
+    //room.entities[4] = cube_c;
 
-    return 5;
+    return 4;
 }
 
 // This room has 2 buttons and 2 cubes. The buttons need to remain pressed

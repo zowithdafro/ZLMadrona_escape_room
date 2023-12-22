@@ -31,6 +31,7 @@ void Sim::registerTypes(ECSRegistry &registry, const Config &cfg)
     registry.registerComponent<RoomEntityObservations>();
     registry.registerComponent<DoorObservation>();
     registry.registerComponent<ButtonState>();
+    registry.registerComponent<LavaState>();
     registry.registerComponent<OpenState>();
     registry.registerComponent<DoorProperties>();
     registry.registerComponent<Lidar>();
@@ -44,6 +45,7 @@ void Sim::registerTypes(ECSRegistry &registry, const Config &cfg)
     registry.registerArchetype<PhysicsEntity>();
     registry.registerArchetype<DoorEntity>();
     registry.registerArchetype<ButtonEntity>();
+    registry.registerArchetype<LavaEntity>();
 
     registry.exportSingleton<WorldReset>(
         (uint32_t)ExportID::Reset);
@@ -276,6 +278,113 @@ inline void buttonSystem(Engine &ctx,
     state.isPressed = button_pressed;
 }
 
+inline void lavaSystem(Engine &ctx,
+                         Position pos,
+                         LavaState &state)
+{
+    AABB lava_aabb {
+        .pMin = pos + Vector3 {
+            -consts::lavaWidth / 2.f,
+            -consts::lavaWidth / 2.f,
+            0.f,
+        },
+        .pMax = pos + Vector3 {
+            consts::lavaWidth / 2.f,
+            consts::lavaWidth / 2.f,
+            0.25f
+        },
+    };
+
+    bool lava_pressed = false;
+    RigidBodyPhysicsSystem::findEntitiesWithinAABB(
+            ctx, lava_aabb, [&](Entity entity) {
+            if (ctx.get<EntityType>(entity) == EntityType::Agent) {
+                auto& agent_reward = ctx.get<Reward>(entity);
+                agent_reward.v -= 10.0f; //Reduce reward or health
+            }
+            lava_pressed = true;
+    });/*
+    RigidBodyPhysicsSystem::findEntitiesWithinAABB(
+        ctx, lava_aabb, [&](Entity entity) {
+            if (ctx.get<EntityType>(entity) == EntityType::Agent) {
+                // Apply lava effects to agent
+                auto& agent_reward = ctx.get<Reward>(entity);
+                agent_reward.v -= lava_state.damageLevel; // Reduce reward or health
+            }
+        }
+    );*/
+    state.isActive = lava_pressed;
+    
+}
+
+
+
+
+/*
+void Sim::handleLavaInteraction(Engine &ctx, Entity agent, Entity lava) {
+    auto& agentPos = ctx.get<Position>(agent);
+    auto& lavaState = ctx.get<LavaState>(lava);
+
+    // Define the AABB for the agent
+    AABB agent_aabb {
+        .pMin = agentPos + Vector3 {
+            -consts::agentRadius,
+            -consts::agentRadius,
+            0.f,
+        },
+        .pMax = agentPos + Vector3 {
+            consts::agentRadius,
+            consts::agentRadius,
+            consts::agentRadius * 2  // Assuming a spherical agent
+        },
+    };
+
+    // Check for collision between agent and lava
+    bool isColliding = false;
+    RigidBodyPhysicsSystem::findEntitiesWithinAABB(
+        ctx, agent_aabb, [&](Entity entity) {
+            if (entity == lava) {
+                isColliding = true;
+            }
+        }
+    );
+
+    if (isColliding && lavaState.isActive) {
+        // Apply damage or penalty to the agent
+        auto& agentReward = ctx.get<Reward>(agent);
+        agentReward.v -= lavaState.damageLevel; // Apply damage as negative reward
+    }
+}
+
+inline void lavaInteractionSystem(Engine &ctx,
+                                  Position &pos,
+                                  LavaState &lava_state)
+{
+    AABB lava_aabb {
+        .pMin = pos + Vector3 {
+            -consts::lavaWidth / 2.f,
+            -consts::lavaWidth / 2.f,
+            0.f,
+        },
+        .pMax = pos + Vector3 {
+            consts::lavaWidth / 2.f,
+            consts::lavaWidth / 2.f,
+            consts::lavaHeight,
+        },
+    };
+
+    RigidBodyPhysicsSystem::findEntitiesWithinAABB(
+        ctx, lava_aabb, [&](Entity entity) {
+            if (ctx.get<EntityType>(entity) == EntityType::Agent) {
+                // Apply lava effects to agent
+                auto& agent_reward = ctx.get<Reward>(entity);
+                agent_reward.v -= lava_state.damageLevel; // Reduce reward or health
+            }
+        }
+    );
+}
+ */
+ 
 // Check if all the buttons linked to the door are pressed and open if so.
 // Optionally, close the door if the buttons aren't pressed.
 inline void doorOpenSystem(Engine &ctx,
@@ -584,6 +693,7 @@ void Sim::setupTasks(TaskGraphBuilder &builder, const Config &cfg)
             ExternalForce,
             ExternalTorque
         >>({});
+    
 
     // Scripted door behavior
     auto set_door_pos_sys = builder.addToGraph<ParallelForNode<Engine,
@@ -627,6 +737,15 @@ void Sim::setupTasks(TaskGraphBuilder &builder, const Config &cfg)
             Position,
             ButtonState
         >>({phys_done});
+    
+    // In your task graph setup
+    // In your task graph setup
+    auto lava_interaction_sys = builder.addToGraph<ParallelForNode<Engine,
+        lavaSystem,
+            Position,
+            LavaState
+    >>({ phys_done });
+
 
     // Set door to start opening if button conditions are met
     auto door_open_sys = builder.addToGraph<ParallelForNode<Engine,
@@ -722,6 +841,8 @@ void Sim::setupTasks(TaskGraphBuilder &builder, const Config &cfg)
     auto sort_phys_objects = queueSortByWorld<PhysicsEntity>(
         builder, {sort_agents});
     auto sort_buttons = queueSortByWorld<ButtonEntity>(
+        builder, {sort_phys_objects});
+    auto sort_lava = queueSortByWorld<LavaEntity>(
         builder, {sort_phys_objects});
     auto sort_walls = queueSortByWorld<DoorEntity>(
         builder, {sort_buttons});

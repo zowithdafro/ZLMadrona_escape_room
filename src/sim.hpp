@@ -36,9 +36,11 @@ enum class SimObject : uint32_t {
     Door,
     Agent,
     Button,
+    Lava,
     Plane,
     NumObjects,
 };
+
 
 // The Sim class encapsulates the per-world state of the simulation.
 // Sim is always available by calling ctx.data() given a reference
@@ -63,6 +65,8 @@ struct Sim : public madrona::WorldBase {
     // Manager class (src/mgr.hpp) for each step.
     static void setupTasks(madrona::TaskGraphBuilder &builder,
                            const Config &cfg);
+
+    void handleLavaInteraction(Engine &ctx, Entity agent, Entity lava);
 
     // The constructor is called for each world during initialization.
     // Config is global across all worlds, while WorldInit (src/init.hpp)

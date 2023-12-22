@@ -152,6 +152,7 @@ enum class EntityType : uint32_t {
     Wall,
     Agent,
     Door,
+    Lava,
     NumTypes,
 };
 
@@ -273,6 +274,22 @@ struct ButtonEntity : public madrona::Archetype<
     madrona::render::Renderable
 > {};
 
+
+struct LavaState {
+    bool isActive;
+    //float damageLevel;
+};
+
+struct LavaEntity : public madrona::Archetype<
+    Position,
+    Rotation,
+    Scale,
+    ObjectID,
+    LavaState,
+    EntityType,
+    madrona::render::Renderable
+> {};
+
 // Generic archetype for entities that need physics but don't have custom
 // logic associated with them.
 struct PhysicsEntity : public madrona::Archetype<
@@ -291,5 +308,6 @@ struct PhysicsEntity : public madrona::Archetype<
     EntityType,
     madrona::render::Renderable
 > {};
+
 
 }
