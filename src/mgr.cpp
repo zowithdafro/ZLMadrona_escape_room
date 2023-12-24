@@ -235,7 +235,7 @@ static void loadRenderObjects(render::RenderManager &render_mgr)
         { math::Vector4{0.5f, 0.3f, 0.3f, 0.0f},  0, 0.8f, 0.2f,},
         { render::rgb8ToFloat(230, 20, 20),   -1, 0.8f, 1.0f },
         { render::rgb8ToFloat(230, 230, 20),   -1, 0.8f, 1.0f },
-        { render::rgb8ToFloat(230, 20, 20),   -1, 0.8f, 1.0f },
+        { math::Vector4{1.f, 1.f, 1.f, 1.0f}, 2, 1.0f, 1.0f},
     });
 
     // Override materials
@@ -254,6 +254,8 @@ static void loadRenderObjects(render::RenderManager &render_mgr)
            "green_grid.png").string().c_str() },
         { (std::filesystem::path(DATA_DIR) /
            "smile.png").string().c_str() },
+        { (std::filesystem::path(DATA_DIR) /
+           "lavar.png").string().c_str() }
     });
 
     render_mgr.configureLighting({
